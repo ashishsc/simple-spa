@@ -10,7 +10,7 @@ type alias Model =
     }
 
 
-initialModel : Model
+initialModel : Routing.Route -> Model
 initialModel route =
     { players = []
     , route = route

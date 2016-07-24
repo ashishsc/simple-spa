@@ -2,8 +2,8 @@ module Players.Edit exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, value, href)
-import Player.Models exposing (..)
-import Player.Messages exposing (..)
+import Players.Models exposing (..)
+import Players.Messages exposing (..)
 
 
 view : Player -> Html.Html Msg
