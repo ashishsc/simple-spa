@@ -9,21 +9,23 @@ import Players.Models exposing (PlayerId)
 type Route
     = PlayersRoute
     | PlayerRoute PlayerId
+    | NewPlayerRoute
     | NotFoundRoute
 
 
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
-        -- /
         [ format PlayersRoute (s "")
-          -- /players/:int
         , format PlayerRoute (s "players" </> int)
-          -- /players
+        , format NewPlayerRoute (s "players" </> s "new")
         , format PlayersRoute (s "players")
         ]
 
 
+{-|
+    Take the location, strip out the # and send it to parse
+-}
 hashParser : Navigation.Location -> Result String Route
 hashParser location =
     location.hash

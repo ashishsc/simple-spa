@@ -1,34 +1,79 @@
 module Players.Update exposing (..)
 
-import Players.Messages exposing (Msg(..))
-import Players.Commands exposing (save)
-import Players.Models exposing (Player, PlayerId)
+import Players.Messages exposing (Msg(..), CreateMsg(..))
+import Players.Commands exposing (..)
+import Players.Models exposing (..)
+import String
 import Navigation
 
 
-update : Msg -> List Player -> ( List Player, Cmd Msg )
-update action players =
+update : Msg -> State -> ( State, Cmd Msg )
+update action state =
     case action of
         FetchAllDone newPlayers ->
-            ( newPlayers, Cmd.none )
+            ( { state | players = newPlayers }, Cmd.none )
 
         FetchAllFail error ->
-            ( players, Cmd.none )
+            ( state, Cmd.none )
 
         ShowPlayers ->
-            ( players, Navigation.modifyUrl "#players" )
+            ( state, navigateToListView )
 
         ShowPlayer id ->
-            ( players, Navigation.modifyUrl ("#players/" ++ (toString id)) )
+            ( state, Navigation.newUrl ("#players/" ++ (toString id)) )
+
+        ShowCreate ->
+            ( state, Navigation.newUrl ("#players/new") )
 
         ChangeLevel id howMuch ->
-            ( players, changeLevelCommands id howMuch players |> Cmd.batch )
+            ( state, changeLevelCommands id howMuch state.players |> Cmd.batch )
 
         SaveSuccess updatedPlayer ->
-            ( updatePlayer updatedPlayer players, Cmd.none )
+            ( { state | players = updatePlayer updatedPlayer state.players }, Cmd.none )
 
         SaveFail error ->
-            ( players, Cmd.none )
+            ( state, Cmd.none )
+
+        CreatePage createMsg ->
+            let
+                newPlayer =
+                    state.newPlayer
+
+                players =
+                    state.players
+            in
+                case createMsg of
+                    NameInput newName ->
+                        ( { state | newPlayer = { newPlayer | name = newName } }, Cmd.none )
+
+                    LevelInput newLevel ->
+                        let
+                            parsedLevel =
+                                Result.withDefault newPlayer.level (String.toInt newLevel)
+                        in
+                            ( { state | newPlayer = { newPlayer | level = parsedLevel } }
+                            , Cmd.none
+                            )
+
+                    Create ->
+                        ( state, create newPlayer )
+
+                    AddNewPlayerSuccess player ->
+                        ( { state
+                            | newPlayer = initialNewPlayer
+                            , players = player :: players
+                          }
+                        , navigateToListView
+                        )
+
+                    AddNewPlayerFail _ ->
+                        -- TODO add something to the model to store this error
+                        ( state, Cmd.none )
+
+
+navigateToListView : Cmd Msg
+navigateToListView =
+    Navigation.newUrl ("#players")
 
 
 changeLevelCommands : PlayerId -> Int -> List Player -> List (Cmd Msg)

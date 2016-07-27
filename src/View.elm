@@ -6,7 +6,8 @@ import Messages exposing (Msg(..))
 import Models exposing (Model)
 import Players.List
 import Players.Edit
-import Players.Models exposing (PlayerId)
+import Players.Create
+import Players.Models exposing (PlayerId, State, Player)
 import Routing exposing (Route(..))
 
 
@@ -20,20 +21,23 @@ page : Model -> Html Msg
 page model =
     case model.route of
         PlayersRoute ->
-            Html.App.map PlayersMsg (Players.List.view model.players)
+            Html.App.map PlayersMsg (Players.List.view model.playersState.players)
 
         PlayerRoute id ->
-            playerEditPage model id
+            playerEditPage model.playersState.players id
+
+        NewPlayerRoute ->
+            Html.App.map PlayersMsg (Players.Create.view model.playersState.newPlayer)
 
         NotFoundRoute ->
             notFoundView
 
 
-playerEditPage : Model -> PlayerId -> Html Msg
-playerEditPage model playerId =
+playerEditPage : List Player -> PlayerId -> Html Msg
+playerEditPage players playerId =
     let
         maybePlayer =
-            model.players
+            players
                 |> List.filter (\player -> player.id == playerId)
                 |> List.head
     in

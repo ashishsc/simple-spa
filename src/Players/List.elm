@@ -19,7 +19,9 @@ view players =
 nav : List Player -> Html Msg
 nav players =
     div [ class "clearfix mb2 white bg-black" ]
-        [ div [ class "left p2" ] [ text "Players" ] ]
+        [ div [ class "left p2" ] [ text "Players" ]
+        , newBtn
+        ]
 
 
 list : List Player -> Html Msg
@@ -57,3 +59,12 @@ editBtn player =
         , onClick (ShowPlayer player.id)
         ]
         [ i [ class "fa fa-pencil mr1" ] [], text "Edit" ]
+
+
+newBtn : Html Msg
+newBtn =
+    button
+        [ class "btn regular right bg-green"
+        , onClick (ShowCreate)
+        ]
+        [ i [ class "fa fa-plus mr1" ] [], text "New" ]

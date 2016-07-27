@@ -4,7 +4,7 @@ import Http
 import Json.Decode as Decode exposing ((:=))
 import Json.Encode as Encode
 import Task
-import Players.Models exposing (PlayerId, Player)
+import Players.Models exposing (PlayerId, Player, NewPlayer)
 import Players.Messages exposing (..)
 
 
@@ -32,28 +32,38 @@ memberDecoder =
         ("level" := Decode.int)
 
 
-saveUrl : PlayerId -> String
-saveUrl playerId =
-    "http://localhost:4000/players/" ++ (toString playerId)
+urlBase : String
+urlBase =
+    "http://localhost:4000/players/"
 
 
-saveTask : Player -> Task.Task Http.Error Player
-saveTask player =
+playerToBody : Player -> Http.Body
+playerToBody player =
+    memberEncoded player
+        |> Encode.encode 0
+        |> Http.string
+
+
+{-|
+   Send a request for a single player
+-}
+playerRequestTask : Http.Body -> String -> String -> Task.Task Http.Error Player
+playerRequestTask body verb url =
     let
-        body =
-            memberEncoded player
-                |> Encode.encode 0
-                |> Http.string
-
         config =
-            { verb = "PATCH"
+            { verb = verb
             , headers = [ ( "Content-Type", "application/json" ) ]
-            , url = saveUrl player.id
+            , url = url
             , body = body
             }
     in
         Http.send Http.defaultSettings config
             |> Http.fromJson memberDecoder
+
+
+saveTask : Player -> Task.Task Http.Error Player
+saveTask player =
+    playerRequestTask (playerToBody player) "PATCH" (urlBase ++ (toString player.id))
 
 
 save : Player -> Cmd Msg
@@ -73,3 +83,33 @@ memberEncoded player =
     in
         list
             |> Encode.object
+
+
+createTask : NewPlayer -> Task.Task Http.Error Player
+createTask newPlayer =
+    playerRequestTask (newPlayerToBody newPlayer) "POST" urlBase
+
+
+newPlayerToBody : NewPlayer -> Http.Body
+newPlayerToBody newPlayer =
+    encodeNewPlayer newPlayer
+        |> Encode.encode 0
+        |> Http.string
+
+
+create : NewPlayer -> Cmd Msg
+create player =
+    createTask player
+        |> Task.perform AddNewPlayerFail AddNewPlayerSuccess
+        |> Cmd.map CreatePage
+
+
+encodeNewPlayer : NewPlayer -> Encode.Value
+encodeNewPlayer newPlayer =
+    let
+        list =
+            [ ( "name", Encode.string newPlayer.name )
+            , ( "level", Encode.int newPlayer.level )
+            ]
+    in
+        Encode.object list
