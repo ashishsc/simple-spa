@@ -70,10 +70,24 @@ update action state =
                         -- TODO add something to the model to store this error
                         ( state, Cmd.none )
 
+        Remove playerId ->
+            ( state, remove playerId )
+
+        RemoveSuccess playerId ->
+            ( { state | players = removePlayer playerId state.players }, Cmd.none )
+
+        RemoveFail error ->
+            ( state, Cmd.none )
+
 
 navigateToListView : Cmd Msg
 navigateToListView =
     Navigation.newUrl ("#players")
+
+
+removePlayer : PlayerId -> (List Player -> List Player)
+removePlayer playerId =
+    List.filter (\player -> player.id /= playerId)
 
 
 changeLevelCommands : PlayerId -> Int -> List Player -> List (Cmd Msg)

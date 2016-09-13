@@ -66,6 +66,29 @@ saveTask player =
     playerRequestTask (playerToBody player) "PATCH" (urlBase ++ (toString player.id))
 
 
+remove : PlayerId -> Cmd Msg
+remove playerId =
+    removeTask playerId
+        |> Task.map (\_ -> playerId)
+        |> Task.perform RemoveFail RemoveSuccess
+
+
+removeTask : PlayerId -> Task.Task Http.Error ()
+removeTask playerId =
+    let
+        url =
+            urlBase ++ (toString playerId)
+
+        request =
+            { verb = "DELETE"
+            , headers = []
+            , url = url
+            , body = Http.empty
+            }
+    in
+        Http.send Http.defaultSettings request |> Http.fromJson (Decode.succeed ())
+
+
 save : Player -> Cmd Msg
 save player =
     saveTask player

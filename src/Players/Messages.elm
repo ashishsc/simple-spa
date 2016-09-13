@@ -14,6 +14,9 @@ type Msg
     | SaveSuccess Player
     | SaveFail Http.Error
     | CreatePage CreateMsg
+    | Remove PlayerId
+    | RemoveSuccess PlayerId
+    | RemoveFail Http.Error
 
 
 type CreateMsg
