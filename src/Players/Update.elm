@@ -5,6 +5,7 @@ import Players.Commands exposing (..)
 import Players.Models exposing (..)
 import String
 import Navigation
+import Http exposing (Error(..))
 
 
 update : Msg -> State -> ( State, Cmd Msg )
@@ -14,7 +15,7 @@ update action state =
             ( { state | players = newPlayers }, Cmd.none )
 
         FetchAllFail error ->
-            ( state, Cmd.none )
+            ( { state | notification = Just (httpErrorToString error) }, Cmd.none )
 
         ShowPlayers ->
             ( state, navigateToListView )
@@ -32,7 +33,7 @@ update action state =
             ( { state | players = updatePlayer updatedPlayer state.players }, Cmd.none )
 
         SaveFail error ->
-            ( state, Cmd.none )
+            ( { state | notification = Just (httpErrorToString error) }, Cmd.none )
 
         CreatePage createMsg ->
             let
@@ -62,6 +63,7 @@ update action state =
                         ( { state
                             | newPlayer = initialNewPlayer
                             , players = player :: players
+                            , notification = Just (player.name ++ " succesfully added")
                           }
                         , navigateToListView
                         )
@@ -74,10 +76,37 @@ update action state =
             ( state, remove playerId )
 
         RemoveSuccess playerId ->
-            ( { state | players = removePlayer playerId state.players }, Cmd.none )
+            ( { state
+                | players = removePlayer playerId state.players
+                , notification = Just "Player removed"
+              }
+            , Cmd.none
+            )
 
         RemoveFail error ->
-            ( state, Cmd.none )
+            ( { state | notification = Just (httpErrorToString error) }, Cmd.none )
+
+        Notify notification ->
+            ( { state | notification = Just notification }, Cmd.none )
+
+        DismissNotification ->
+            ( { state | notification = Nothing }, Cmd.none )
+
+
+httpErrorToString : Http.Error -> String
+httpErrorToString error =
+    case error of
+        Timeout ->
+            "Network Timeout"
+
+        NetworkError ->
+            "Network Error"
+
+        UnexpectedPayload payload ->
+            "Unexpected Payload returned" ++ payload
+
+        BadResponse statusCode message ->
+            "Bad Response(" ++ (toString statusCode) ++ ") " ++ message
 
 
 navigateToListView : Cmd Msg

@@ -17,6 +17,8 @@ type Msg
     | Remove PlayerId
     | RemoveSuccess PlayerId
     | RemoveFail Http.Error
+    | Notify String
+    | DismissNotification
 
 
 type CreateMsg

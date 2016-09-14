@@ -5,14 +5,15 @@ import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Players.Messages exposing (..)
 import Players.Models exposing (..)
-import Players.Models exposing (Player)
+import Players.SharedViews as SharedViews
 
 
-view : List Player -> Html Msg
-view players =
+view : State -> Html Msg
+view playersState =
     div []
-        [ nav players
-        , list players
+        [ nav playersState.players
+        , list playersState.players
+        , SharedViews.toast playersState.notification
         ]
 
 

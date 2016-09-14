@@ -21,7 +21,7 @@ page : Model -> Html Msg
 page model =
     case model.route of
         PlayersRoute ->
-            Html.App.map PlayersMsg (Players.List.view model.playersState.players)
+            Html.App.map PlayersMsg (Players.List.view model.playersState)
 
         PlayerRoute id ->
             playerEditPage model.playersState.players id

@@ -36,6 +36,7 @@ initialNewPlayer =
 type alias State =
     { players : List Player
     , newPlayer : NewPlayer
+    , notification : Maybe String
     }
 
 
@@ -43,4 +44,5 @@ initialState : State
 initialState =
     { players = []
     , newPlayer = initialNewPlayer
+    , notification = Nothing
     }
