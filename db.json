@@ -4,6 +4,6 @@
     { "id": 2, "name": "Lance", "level": 1 },
     { "id": 3, "name": "Aki", "level": 3 },
     { "id": 4, "name": "Maria", "level": 4 },
-    { "id": 5, "name": "Ashish", "level": 9000 }
+    { "id": 5, "name": "Ashish", "level": -1 }
   ]
 }
